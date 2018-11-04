@@ -76,7 +76,7 @@ class _Response(object):
 
         self._response['card'] = card
         return self
-    
+
     def list_display_render(self, template=None, title=None, backButton='HIDDEN', token=None, background_image_url=None, image=None, listItems=None, hintText=None):
         directive = [
             {
@@ -89,7 +89,7 @@ class _Response(object):
                 }
             }
         ]
-        
+
         if background_image_url is not None:
             directive[0]['template']['backgroundImage'] = {
                'sources': [
@@ -121,24 +121,24 @@ class _Response(object):
                 }
             }
         ]
-        
+
         if background_image_url is not None:
             directive[0]['template']['backgroundImage'] = {
                'sources': [
                    {'url': background_image_url}
                ]
             }
-        
+
         if image is not None:
             directive[0]['template']['image'] = {
                 'sources': [
                     {'url': image}
                 ]
             }
-            
+
         if token is not None:
             directive[0]['template']['token'] = token
-            
+
         if hintText is not None:
             hint = {
                 'type':'Hint',
@@ -171,7 +171,7 @@ class _Response(object):
             'response': self._response,
             'sessionAttributes': session.attributes
         }
-        
+
         kw = {}
         if hasattr(session, 'attributes_encoder'):
             json_encoder = session.attributes_encoder
@@ -208,13 +208,13 @@ class buy(_Response):
             'shouldEndSession': True,
             'directives': [{
               'type': 'Connections.SendRequest',
-              'name': 'Buy',          
+              'name': 'Buy',
               'payload': {
                          'InSkillProduct': {
                              'productId': productId
                          }
                },
-              'token': 'correlationToken'              
+              'token': 'correlationToken'
             }]
         }
 
@@ -226,13 +226,13 @@ class refund(_Response):
             'shouldEndSession': True,
             'directives': [{
               'type': 'Connections.SendRequest',
-              'name': 'Cancel',          
+              'name': 'Cancel',
               'payload': {
                          'InSkillProduct': {
                              'productId': productId
                          }
                },
-              'token': 'correlationToken'              
+              'token': 'correlationToken'
             }]
         }
 
@@ -243,14 +243,14 @@ class upsell(_Response):
             'shouldEndSession': True,
             'directives': [{
               'type': 'Connections.SendRequest',
-              'name': 'Upsell',          
+              'name': 'Upsell',
               'payload': {
                          'InSkillProduct': {
                              'productId': productId
                          },
                          'upsellMessage': msg
                },
-              'token': 'correlationToken'              
+              'token': 'correlationToken'
             }]
         }
 
@@ -311,7 +311,7 @@ class confirm_slot(_Response):
 class confirm_intent(_Response):
     """
     Sends a ConfirmIntent directive.
-    
+
     """
     def __init__(self, speech, updated_intent=None):
         self._response = {
@@ -451,10 +451,6 @@ def _copyattr(src, dest, attr, convert=None):
 
 
 def _output_speech(speech):
-    try:
-        xmldoc = ElementTree.fromstring(speech)
-        if xmldoc.tag == 'speak':
-            return {'type': 'SSML', 'ssml': speech}
-    except (UnicodeEncodeError, ElementTree.ParseError) as e:
-        pass
+    if '<speak' in speech:
+        return {'type': 'SSML', 'ssml': speech}
     return {'type': 'PlainText', 'text': speech}
